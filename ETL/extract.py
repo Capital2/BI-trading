@@ -7,11 +7,16 @@ class Extract:
         self.headers = headers
         self.params = params
         
-    def get_data(self):
+    def download_gme_data(self, append=False):
         tmp_destination = Path(Path.cwd(), "tmp", "gme_data.csv")
         res = req.get(self.url, headers=self.headers, params=self.params)
-        if res.status_code == 200:            
-            with open(tmp_destination, "wb") as file:
+        if res.status_code == 200:    
+            if append:
+                mode = "a"
+            else:
+                mode = "w"
+                        
+            with open(tmp_destination, f"{mode}b") as file:
                 file.write(res.content)
                 print("GME data saved successfully!")
         else:
