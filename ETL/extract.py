@@ -1,5 +1,6 @@
 import requests as req
 from pathlib import Path
+import pandas as pd
 
 class Extract:
     def __init__(self, url, headers=None, params=None):
@@ -21,3 +22,9 @@ class Extract:
                 print("GME data saved successfully!")
         else:
             print("Failed to fetch data. Status code:", res.status_code)
+
+
+    def read_gme_data(self) -> pd.DataFrame:
+        source = Path(Path.cwd(), "tmp", "gme_data.csv")
+        df = pd.read_csv(source)
+        return df

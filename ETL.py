@@ -1,4 +1,5 @@
 from ETL.extract import Extract
+from ETL.transform import Transform
 
 
 def ETL():    
@@ -12,8 +13,17 @@ def ETL():
         "downloadpartial": "false",
         "newdates": "false",
     }
+    
     extract = Extract(url, params=params)
     extract.download_gme_data(append=False)
+    df = extract.read_gme_data()
+    print("data extracted")
+    print(df)
+    
+    transform = Transform(df)
+    transform.perform_data_transformations()
+    print("data transformed")
+    print(transform.data)
     
 if __name__ == "__main__":
     ETL()
