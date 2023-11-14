@@ -1,2 +1,2 @@
 from .config import *
-from .tables.gme import GME
+from .tables.market_activity import MarketActivity

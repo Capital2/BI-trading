@@ -3,9 +3,11 @@ from finta import TA
 
 
 class Transform:
-    def __init__(self, data: pd.DataFrame) -> None:
+    def __init__(self, data: pd.DataFrame, name: str, share: str) -> None:
         self.data = data
         self.psma = 12  # Periods for simple moving average
+        self.name = name
+        self.share = share
 
     def cast(self):
         # Cast the pandas dataframe columns to the correct types
@@ -46,6 +48,10 @@ class Transform:
             },
             inplace=True,
         )
+        
+    def add_missing_columns(self):
+        self.data["name"] = self.name
+        self.data["share"] = self.share
 
     def perform_data_transformations(self):
         # Perform all the data transformations       
@@ -54,4 +60,5 @@ class Transform:
         self.calculate_indicators()
         self.validate()
         self.correct_column_names()
-        self.correct_index()        
+        self.correct_index()   
+        self.add_missing_columns()     
