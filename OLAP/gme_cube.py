@@ -9,6 +9,8 @@ class GME_Cube:
         self.session = tt.Session()
         self.table = None
         self.cube = None
+        self.hierarchies = None
+        self.measures = None
 
     def get_gme_table(self):        
         db_host = os.getenv("DB_HOST")
@@ -29,6 +31,14 @@ class GME_Cube:
         
     def create_cube(self):
         self.cube = self.session.create_cube(self.table, "GME_Cube")
+        self.hierarchies = self.cube.hierarchies
+        self.measures = self.cube.measures
+        
+    def get_hierarchies(self):
+        return self.hierarchies
+    
+    def get_measures(self):
+        return self.measures
 
 
 
