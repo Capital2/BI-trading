@@ -1,5 +1,6 @@
 from ETL.extract import Extract
 from ETL.transform import Transform
+from ETL.load import Load
 
 
 def ETL():    
@@ -24,6 +25,9 @@ def ETL():
     transform.perform_data_transformations()
     print("data transformed")
     print(transform.data)
+    
+    load = Load()
+    load.to_datawarehouse(transform.data, "GME")
     
 if __name__ == "__main__":
     ETL()

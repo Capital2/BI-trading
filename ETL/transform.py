@@ -21,7 +21,8 @@ class Transform:
         
     def sort(self):
         # Add df.sort_index() so the data isn't reversed. The model is training and predicting on reversed data. Gym-anytrading does not automatically sort by the date index.
-        self.data.sort_index(ascending=True, inplace=True)
+        # self.data.sort_index(ascending=True, inplace=True)
+        self.data.sort_values(by='Date', inplace=True)
         
     def calculate_indicators(self):
         # Calculating the financial indicators
@@ -30,16 +31,23 @@ class Transform:
         self.data['OBV'] = TA.OBV(self.data)
         
     def correct_column_names(self):
-        pass
+        self.data.rename(columns = {
+                                        'Date':'date',
+                                        'Open':'open',
+                                        'High':'high',
+                                        'Low':'low',
+                                        'Close':'close',
+                                        'Volume':'volume',}, inplace = True)
         
         
     def perform_data_transformations(self):
         # Perform all the data transformations
         self.cast()
-        self.correct_index()
+        # self.correct_index()
         self.sort()
         self.calculate_indicators()
         self.validate()
+        self.correct_column_names()
         
         
     
