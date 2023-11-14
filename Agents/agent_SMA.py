@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 from stable_baselines3 import A2C
 from stable_baselines3.common.env_util import make_vec_env
-from finta import TA
 
 class SimpleMovingAverageAgent(gym.Env):
     def __init__(self, df, window_size=5, initial_balance=1000):
@@ -53,10 +52,9 @@ class SimpleMovingAverageAgent(gym.Env):
 
     def train_model(self):
         # delete date column
-        self.df['SMA'] = TA.SMA(self.df, 1)
         env = make_vec_env(lambda: self, n_envs=1)
         self.model = A2C('MlpPolicy', env, verbose=1)
-        self.model.learn(total_timesteps=10000)
+        self.model.learn(total_timesteps=1000)
 
     def _next_observation(self):
         window_end = min(self.current_step + self.window_size, len(self.df))
@@ -70,13 +68,12 @@ class SimpleMovingAverageAgent(gym.Env):
         return np.concatenate((padding, window_data), axis=0)
 
     def predict(self, obs):
-        obs = obs.astype(np.float64)
-
+        obs = obs[np.newaxis, ...]
         if self.model is None:
             raise Exception("Model not loaded. Please load the model before prediction.")
 
-        if obs.shape[0] != self.window_size:
-            raise ValueError(f"Expected observation shape {(self.window_size,)}, but got {obs.shape}")
+        # if obs.shape[0] != self.window_size:
+        #     raise ValueError(f"Expected observation shape {(self.window_size,)}, but got {obs.shape}")
 
         action, _states = self.model.predict(obs, deterministic=True)
         return action
