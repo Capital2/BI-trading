@@ -19,9 +19,13 @@ class Extract:
             "downloadpartial": "false",
             "newdates": "false",
         }
+        
+    def get_file_args(self):
+        return [self.params["startdate"].replace("/", "-").replace(" ", "T").replace(":", "-"), self.params["enddate"].replace("/", "-").replace(" ", "T").replace(":", "-")  ]
 
-    def download_gme_data(self):        
-        tmp_destination = Path(Path.cwd(), "tmp", f"gme_data_{self.params['startdate']}_{self.params['enddate']}.csv")
+    def download_gme_data(self):     
+        startdate, enddate = self.get_file_args()
+        tmp_destination = Path(Path.cwd(), "tmp", f"gme_data_{startdate}_{enddate}.csv")
         res = req.get(self.url, headers=self.headers, params=self.params)
         if res.status_code == 200:    
             with open(tmp_destination, "wb") as file:
@@ -30,6 +34,7 @@ class Extract:
             print("Failed to download data. Status code:", res.status_code)
 
     def read_gme_data(self) -> pd.DataFrame:
-        source = Path(Path.cwd(), "tmp", f"gme_data_{self.params['startdate']}_{self.params['enddate']}.csv")
+        startdate, enddate = self.get_file_args()
+        source = Path(Path.cwd(), "tmp", f"gme_data_{startdate}_{enddate}.csv")
         df = pd.read_csv(source)
         return df

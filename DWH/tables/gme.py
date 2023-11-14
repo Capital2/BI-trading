@@ -7,8 +7,8 @@ from datetime import date
 
 class GME(Base):
     __tablename__ = "GME"
-    id: Mapped[int] = mapped_column(primary_key=True)
-    date: Mapped[date] = mapped_column(Date)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement='auto')
+    date: Mapped[date] = mapped_column(Date, unique=True, index=True)
     open: Mapped[float] = mapped_column(Float)
     high: Mapped[float] = mapped_column(Float)
     low: Mapped[float] = mapped_column(Float)
