@@ -58,6 +58,7 @@ class MACDTradingAgent:
 
     def train_model(self, total_timesteps=10000):
         self.model.learn(total_timesteps=total_timesteps)
+        self.model.save(f"agent_models/MACDTradingAgent_model.h5")
 
     def predict(self, obs):
         action, _states = self.model.predict(obs, deterministic=True)
