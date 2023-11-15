@@ -52,7 +52,5 @@ state, info = env.reset()
 # done = False
 # while not done:
 master_agent.train_models()
-action = master_agent.make_decision(state)
+action = master_agent.make_decision()
 print(f"Action: {action}")
-state, reward, done, info = env.step(action)
-env.render()

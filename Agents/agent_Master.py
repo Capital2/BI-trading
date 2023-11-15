@@ -14,15 +14,16 @@ class MasterTradingAgent:
         # self.obv_agent.train_model()
         # self.macd_agent.train_model()
 
-    def make_decision(self, state):
+    def make_decision(self):
         # Get decisions from each agent
-        sma_decision = self.sma_agent.predict(state)
+        sma_decision = self.sma_agent.predict(self.sma_agent.env.reset())
+        print("sma_decision: ", sma_decision)
         # rsi_decision = self.rsi_agent.predict(state)
         # obv_decision = self.obv_agent.predict(state)
         # macd_decision = self.macd_agent.predict(state)
 
         # Decision-making logic
-        decisions = [sma_decision, 0, 0, 0]
+        decisions = [*sma_decision, 0, 0, 0]
         final_decision = self.decision_logic(decisions)
 
         return final_decision
