@@ -11,6 +11,9 @@ class MarketActivityCube(metaclass=SingletonMeta):
         self.hierarchies = None
         self.measures = None
         self.levels = None
+        
+        self.get_table()
+        self.create_cube()
 
     def get_table(self):
         db_host = settings.db_host
