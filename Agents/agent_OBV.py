@@ -6,9 +6,9 @@ from stable_baselines3.common.env_util import make_vec_env
 from finta import TA
 
 # Custom Trading Environment based on OBV
-class OBVTradingAgent(gym.Env):
+class OBVTradingEnv(gym.Env):
     def __init__(self, df, window_size=12, initial_balance=1000):
-        super(OBVTradingAgent, self).__init__()
+        super(OBVTradingEnv, self).__init__()
 
         self.df = df
         self.window_size = window_size
@@ -45,25 +45,22 @@ class OBVTradingAgent(gym.Env):
         return self._next_observation(), reward, done, {}
 
     def render(self, mode='human'):
-        print(f'Step: {self.current_step}, Balance: {self.balance}')
+        print(f'Agent OBV Step: {self.current_step}, Balance: {self.balance}')
 
-# Load and preprocess data
-df = pd.read_csv('data1.csv')
-df['Volume'] =  df['Volume'].apply(lambda x: float(x.replace(",", "")))# TODO: Replace with actual volume data
-df['OBV'] =  TA.OBV(df)
-df.dropna(inplace=True)
+class OBVTradingAgent:
+    def __init__(self, df):
+        self.env = make_vec_env(lambda: OBVTradingEnv(df), n_envs=1)
 
-# Create and check the environment
-env = OBVTradingAgent(df)
-env = make_vec_env(lambda: OBVTradingAgent(df), n_envs=1)
+        # Initialize the model
+        self.model = A2C('MlpPolicy', self.env, verbose=1)
 
-# Train the OBV model
-model = A2C('MlpPolicy', env, verbose=1)
-model.learn(total_timesteps=10000)
+    def train_model(self, total_timesteps=10000):
+        # Train the model
+        self.model.learn(total_timesteps=total_timesteps)
 
-# Test the trained agent
-obs = env.reset()
-for i in range(1000):
-    action, _states = model.predict(obs, deterministic=True)
-    obs, rewards, dones, info = env.step(action)
-    env.render()
+    def predict(self, obs):
+        # Use the model to predict the action based on the observation
+        action, _states = self.model.predict(obs, deterministic=True)
+        obs, rewards, dones, info = self.env.step(action)
+        self.env.render()
+        return action

@@ -6,9 +6,9 @@ from stable_baselines3.common.env_util import make_vec_env
 from finta import TA
 
 # Custom Trading Environment based on MACD
-class MACDTradingAgent(gym.Env):
+class MACDTradingEnv(gym.Env):
     def __init__(self, df, initial_balance=1000):
-        super(MACDTradingAgent, self).__init__()
+        super(MACDTradingEnv, self).__init__()
 
         self.df = df
         self.initial_balance = initial_balance
@@ -29,8 +29,8 @@ class MACDTradingAgent(gym.Env):
     def _next_observation(self):
         macd = self.df.iloc[self.current_step]['MACD']
         signal = self.df.iloc[self.current_step]['MACD_SIGNAL']
-        histogram = self.df.iloc[self.current_step]['MACD_HIST']
-        return np.array([macd, signal, histogram])
+        volume = self.df.iloc[self.current_step]['Volume']  # Replace 'VOLUME' with the name of your column
+        return np.array([macd, signal, volume])
 
     def step(self, action):
         self.current_step += 1
@@ -49,27 +49,22 @@ class MACDTradingAgent(gym.Env):
         return self._next_observation(), reward, done, {}
 
     def render(self, mode='human'):
-        print(f'Step: {self.current_step}, Balance: {self.balance}')
+        print(f'Agent MACD Step: {self.current_step}, Balance: {self.balance}')
 
-# Load and preprocess data
-df = pd.read_csv('data.csv')
-macd = TA.MACD(df)
-df['MACD'] = macd['MACD']
-df['MACD_SIGNAL'] = macd['SIGNAL']
-df['MACD_HIST'] = df['MACD'] - df['MACD_SIGNAL']
-df.dropna(inplace=True)
 
-# Create and check the environment
-env = MACDTradingAgent(df)
-env = make_vec_env(lambda: MACDTradingAgent(df), n_envs=1)
+class MACDTradingAgent:
+    def __init__(self, df):
+        self.env = make_vec_env(lambda: MACDTradingEnv(df), n_envs=1)
+        # Initialize the model
+        self.model = A2C('MlpPolicy', self.env, verbose=1)
 
-# Train the MACD model
-model = A2C('MlpPolicy', env, verbose=1)
-model.learn(total_timesteps=10000)
+    def train_model(self, total_timesteps=10000):
+        # Train the model
+        self.model.learn(total_timesteps=total_timesteps)
 
-# Test the trained agent
-obs = env.reset()
-for i in range(1000):
-    action, _states = model.predict(obs, deterministic=True)
-    obs, rewards, dones, info = env.step(action)
-    env.render()
+    def predict(self, obs):
+        # Use the model to predict the action based on the observation
+        action, _states = self.model.predict(obs, deterministic=True)
+        obs, rewards, dones, info = self.env.step(action)
+        self.env.render()
+        return action

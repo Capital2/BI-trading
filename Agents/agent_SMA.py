@@ -49,7 +49,7 @@ class SimpleMovingAverageEnv(gym.Env):
         return self._next_observation(), reward, done, {}
 
     def render(self, mode='human'):
-        print(f'Step: {self.current_step}, Balance: {self.balance}')
+        print(f'Agent SMA Step: {self.current_step}, Balance: {self.balance}')
 
 
 class SimpleMovingAverageAgent:

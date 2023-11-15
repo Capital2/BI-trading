@@ -6,9 +6,9 @@ from stable_baselines3.common.env_util import make_vec_env
 from finta import TA
 
 # Custom Trading Environment based on RSI
-class RSITradingAgent(gym.Env):
+class RSITradingEnv(gym.Env):
     def __init__(self, df, window_size=14, initial_balance=1000):
-        super(RSITradingAgent, self).__init__()
+        super(RSITradingEnv, self).__init__()
 
         self.df = df
         self.window_size = window_size
@@ -47,24 +47,22 @@ class RSITradingAgent(gym.Env):
         return self._next_observation(), reward, done, {}
 
     def render(self, mode='human'):
-        print(f'Step: {self.current_step}, Balance: {self.balance}')
+        print(f'Agent RSI Step: {self.current_step}, Balance: {self.balance}')
 
-# Load your data
-df = pd.read_csv('data.csv')
-df['RSI'] = TA.RSI(df)
-df.dropna(inplace=True)
+class RSITradingAgent:
+    def __init__(self, df):
+        self.env = make_vec_env(lambda: RSITradingEnv(df), n_envs=1)
 
-# Create and check the environment
-env = RSITradingAgent(df)
-env = make_vec_env(lambda: RSITradingAgent(df), n_envs=1)
+        # Initialize the model
+        self.model = A2C('MlpPolicy', self.env, verbose=1)
 
-# Train the RSI model
-model = A2C('MlpPolicy', env, verbose=1)
-model.learn(total_timesteps=10000)
+    def train_model(self, total_timesteps=10000):
+        # Train the model
+        self.model.learn(total_timesteps=total_timesteps)
 
-# Test the trained agent
-obs = env.reset()
-for i in range(1000):
-    action, _states = model.predict(obs, deterministic=True)
-    obs, rewards, dones, info = env.step(action)
-    env.render()
+    def predict(self, obs):
+        # Use the model to predict the action based on the observation
+        action, _states = self.model.predict(obs, deterministic=True)
+        obs, rewards, dones, info = self.env.step(action)
+        self.env.render()
+        return action
