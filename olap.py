@@ -1,14 +1,15 @@
-from OLAP.gme_cube import GME_Cube
+from OLAP.market_activity_cube import MarketActivityCube
 
 
 def olap():
-    cube = GME_Cube()
-    cube.get_gme_table()
-    cube.create_cube()
+    ma_cube = MarketActivityCube()
+    ma_cube.get_table()
+    ma_cube.create_cube()
+    
     print("Hierarchies:")
-    print(cube.hierarchies)
+    print(ma_cube.hierarchies)
     print("Measures:")
-    print(cube.measures)
+    print(ma_cube.measures)
 
 
 if __name__ == "__main__":
