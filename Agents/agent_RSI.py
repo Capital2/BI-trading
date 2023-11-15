@@ -52,17 +52,18 @@ class RSITradingEnv(gym.Env):
 class RSITradingAgent:
     def __init__(self, df):
         self.env = make_vec_env(lambda: RSITradingEnv(df), n_envs=1)
-
-        # Initialize the model
         self.model = A2C('MlpPolicy', self.env, verbose=1)
 
     def train_model(self, total_timesteps=10000):
-        # Train the model
         self.model.learn(total_timesteps=total_timesteps)
 
     def predict(self, obs):
-        # Use the model to predict the action based on the observation
         action, _states = self.model.predict(obs, deterministic=True)
         obs, rewards, dones, info = self.env.step(action)
         self.env.render()
         return action[0]
+
+    def evaluate(self, historical_signals):
+        predicted_signals = [self.predict(obs) for obs in self.env.reset()]
+        accuracy = sum(1 for predicted, actual in zip(predicted_signals, historical_signals) if predicted == actual) / len(historical_signals)
+        return accuracy
