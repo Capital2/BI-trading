@@ -32,11 +32,12 @@ class OBVTradingAgent(gym.Env):
 
     def step(self, action):
         self.current_step += 1
-
-        current_price = self.df['Close'][self.current_step]
         reward = 0
-        done = self.current_step >= len(self.df) - self.window_size
-
+        if self.current_step >= len(self.df) - self.window_size:
+            # If the current step exceeds the valid range, set done to True
+            done = True
+            return self._next_observation(), 0, done, {}
+        current_price = self.df['Close'].iloc[self.current_step]
         if action == 1:  # Buy
             self.balance -= current_price
             reward = 1  # Placeholder reward
@@ -51,8 +52,9 @@ class OBVTradingAgent(gym.Env):
 
 # Load and preprocess data
 df = pd.read_csv('data.csv')
-df['volume'] = 1000 # TODO: Replace with actual volume data
-df['OBV'] = TA.OBV(df)
+df_reset_index = df.reset_index(drop=True)
+df['Volume'] = pd.to_numeric(df['Volume'], errors='coerce')# TODO: Replace with actual volume data
+df['OBV'] =  TA.OBV(df)
 df.dropna(inplace=True)
 
 # Create and check the environment
