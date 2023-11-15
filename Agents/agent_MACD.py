@@ -67,4 +67,4 @@ class MACDTradingAgent:
         action, _states = self.model.predict(obs, deterministic=True)
         obs, rewards, dones, info = self.env.step(action)
         self.env.render()
-        return action
+        return action[0]
