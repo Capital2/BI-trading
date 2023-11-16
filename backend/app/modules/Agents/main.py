@@ -1,10 +1,12 @@
-from agent_SMA import SimpleMovingAverageAgent
-from agent_RSI import RSITradingAgent
-from agent_MACD import MACDTradingAgent
-from agent_OBV import OBVTradingAgent
-from agent_Master import MasterTradingAgent
+from .agent_SMA import SimpleMovingAverageAgent
+from .agent_RSI import RSITradingAgent
+from .agent_MACD import MACDTradingAgent
+from .agent_OBV import OBVTradingAgent
+from .agent_Master import MasterTradingAgent
 import pandas as pd
 from finta import TA
+
+# -----------------------------------------------
 
 # Load market data for the environment
 df = pd.read_csv('data.csv')
@@ -24,8 +26,12 @@ df['MACD_SIGNAL'] = TA.MACD(df)['SIGNAL']
 df.fillna(0, inplace=True)
 df.dropna(inplace=True)
 
+print("chroufa df")
+print(df)
 
+# -----------------------------------------------
 
+# -----------------------------------------------
 
 sma_agent = SimpleMovingAverageAgent(df)
 obv_agent = OBVTradingAgent(df)
@@ -37,5 +43,13 @@ master_agent = MasterTradingAgent(sma_agent, rsi_agent, obv_agent, macd_agent)
 master_agent.train_models()
 
 master_agent.step(1000, 10)
+
+# -----------------------------------------------
+
+
+
+
+
+
 # action = master_agent.make_decision()
 # print(f"Action: {action}")

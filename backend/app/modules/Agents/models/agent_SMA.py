@@ -4,6 +4,8 @@ import pandas as pd
 from stable_baselines3 import A2C
 from stable_baselines3.common.env_util import make_vec_env
 from pathlib import Path
+from pandas import DataFrame
+
 
 class SimpleMovingAverageEnv(gym.Env):
     def __init__(self, df, window_size=12, initial_balance=1000):
@@ -58,9 +60,10 @@ class SimpleMovingAverageEnv(gym.Env):
 
 
 class SimpleMovingAverageAgent:
-    def __init__(self, df):
+    def __init__(self, df: DataFrame, share: str):
         self.env = make_vec_env(lambda: SimpleMovingAverageEnv(df), n_envs=1)
         self.model = A2C("MlpPolicy", self.env, verbose=1)
+        self.share = share
 
     def train_model(self, total_timesteps=10000):
         self.model.learn(total_timesteps=total_timesteps)
@@ -70,7 +73,7 @@ class SimpleMovingAverageAgent:
                 "modules",
                 "Agents",
                 "artifacts",
-                "SimpleMovingAverageAgent_model.h5",
+                f"SMA_{self.share}.h5",
             )
         )
 

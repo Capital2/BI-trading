@@ -5,7 +5,7 @@ from stable_baselines3 import A2C
 from stable_baselines3.common.env_util import make_vec_env
 from finta import TA
 from pathlib import Path
-
+from pandas import DataFrame
 
 # Custom Trading Environment based on RSI
 class RSITradingEnv(gym.Env):
@@ -57,15 +57,16 @@ class RSITradingEnv(gym.Env):
 
 
 class RSITradingAgent:
-    def __init__(self, df):
+    def __init__(self, df: DataFrame, share: str):
         self.env = make_vec_env(lambda: RSITradingEnv(df), n_envs=1)
         self.model = A2C("MlpPolicy", self.env, verbose=1)
+        self.share = share
 
     def train_model(self, total_timesteps=10000):
         self.model.learn(total_timesteps=total_timesteps)
         self.model.save(
             Path.joinpath(
-                Path.cwd(), "modules", "Agents", "artifacts", "RSITradingAgent_model.h5"
+                Path.cwd(), "modules", "Agents", "artifacts", f"RSI_{self.share}.h5"
             )
         )
 

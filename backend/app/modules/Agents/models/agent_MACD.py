@@ -4,6 +4,8 @@ from stable_baselines3 import A2C
 from stable_baselines3.common.env_util import make_vec_env
 from finta import TA
 from pathlib import Path
+from pandas import DataFrame
+
 
 # Custom Trading Environment based on MACD
 class MACDTradingEnv(gym.Env):
@@ -57,9 +59,10 @@ class MACDTradingEnv(gym.Env):
 
 
 class MACDTradingAgent:
-    def __init__(self, df):
+    def __init__(self, df: DataFrame, share: str):
         self.env = make_vec_env(lambda: MACDTradingEnv(df), n_envs=1)
         self.model = A2C("MlpPolicy", self.env, verbose=1)
+        self.share = share
 
     def train_model(self, total_timesteps=10000):
         self.model.learn(total_timesteps=total_timesteps)
@@ -69,7 +72,7 @@ class MACDTradingAgent:
                 "modules",
                 "Agents",
                 "artifacts",
-                "MACDTradingAgent_model.h5",
+                f"MACD_{self.share}.h5",
             )
         )
 

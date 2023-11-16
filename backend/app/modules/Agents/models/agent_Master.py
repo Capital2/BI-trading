@@ -1,5 +1,5 @@
 from collections import Counter
-from agent_price_predictor import PricePredictionAgent
+from .agent_price_predictor import PricePredictionAgent
 import uuid
 
 
