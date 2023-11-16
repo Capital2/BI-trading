@@ -2,7 +2,7 @@ from .. import Base
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy import Date, Float, String
-from datetime import date
+import datetime
 from sqlalchemy import UniqueConstraint
 
 
@@ -13,7 +13,7 @@ class MarketActivity(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement="auto")
     name: Mapped[str] = mapped_column(String(50))
     share: Mapped[str] = mapped_column(String(50))
-    date: Mapped[date] = mapped_column(Date, index=True)
+    date: Mapped[datetime.date] = mapped_column(Date, index=True)
     open: Mapped[float] = mapped_column(Float)
     high: Mapped[float] = mapped_column(Float)
     low: Mapped[float] = mapped_column(Float)
