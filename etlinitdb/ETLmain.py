@@ -1,6 +1,10 @@
 from ETL.process import Process as ETLProcess
 from multiprocessing import Process
+from DWH import Base, engine
 
+def init_db():
+    Base.metadata.create_all(engine)
+    
 
 def ETL():
     # Process parameters
@@ -55,4 +59,10 @@ def ETL():
 
 
 if __name__ == "__main__":
+    try:
+        init_db()
+        print("Database initialized successfully")
+    except Exception as e:
+        print("Database initialization failed")
+        print(e)
     ETL()
