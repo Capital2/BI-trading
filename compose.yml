@@ -1,9 +1,9 @@
 
 services:
-  frontend:
-    build: frontend/
-    ports:
-      - "3000:8080"
+  # frontend:
+  #   build: frontend/
+  #   ports:
+  #     - "3000:8080"
   db:
     image: postgres:latest
     restart: always
@@ -26,7 +26,10 @@ services:
       - DB_PORT=5432
       - DB_NAME=bi
     volumes:
-      - agentmodels:app/Agents/agent_models
+      - agentmodels:/app/Agents/agent_models
+    depends_on:
+      etl:
+        condition: service_healthy
   
   etl:
     build: etlinitdb/
@@ -36,3 +39,16 @@ services:
       - DB_HOST=db
       - DB_PORT=5432
       - DB_NAME=bi
+    ports:
+      - "3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      - db
+
+volumes:
+  agentmodels:
+  postgres-data:

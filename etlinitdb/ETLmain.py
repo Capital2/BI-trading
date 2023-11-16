@@ -62,7 +62,9 @@ if __name__ == "__main__":
     try:
         init_db()
         print("Database initialized successfully")
+        ETL()
+        print("looks great")
     except Exception as e:
         print("Database initialization failed")
         print(e)
-    ETL()
+    
