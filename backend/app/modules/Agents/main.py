@@ -8,11 +8,14 @@ from finta import TA
 
 # Load market data for the environment
 df = pd.read_csv('data.csv')
-df['Date'] = pd.to_datetime(df['Timestamp']) 
+df['Date'] = pd.to_datetime(df['Date']) 
+
 df.set_index('Date', inplace=True)
 df.sort_index(ascending=True, inplace=True)
 
 df['Volume'] = df['Volume'].apply(lambda x: float(x.replace(",", "")))
+
+
 df['SMA'] = TA.SMA(df, 12) # 12 period simple moving average
 df['RSI'] = TA.RSI(df)
 df['OBV'] = TA.OBV(df)

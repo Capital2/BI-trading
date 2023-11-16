@@ -9,7 +9,9 @@ class CubeController(metaclass=SingletonMeta):
     
     def prepare_agent_data(self, df: DataFrame):
         df.drop(columns=['name', 'share', 'id'], inplace=True)
-        df.set_index('date', inplace=True)
+        df.set_index('Date', inplace=True)
+        df.sort_index(ascending=True, inplace=True)
+        
         print("df input to the agent")
         print(df.head())
         
