@@ -10,19 +10,11 @@ class MasterTradingAgent:
             agent.train_model()
 
     def make_decision(self):
-            # Gather decisions from each agent
-            decisions = [agent.predict(agent.env.reset()) for agent in self.agents]
-            print(f"Decisions: {decisions}")
-            # Apply decision rules
-            return self.apply_decision_rules(decisions)
-    
+        decisions = [agent.predict(agent.env.reset()) for agent in self.agents]
+        print(f"Decisions: {decisions}")
+        return self.apply_decision_rules(decisions)
 
     def apply_decision_rules(self, decisions):
-        """
-        Apply a set of predefined rules to make the final decision.
-        :param decisions: List of decisions from each trading agent
-        :return: Final decision (0: hold, 1: buy, 2: sell)
-        """
         vote_count = Counter(decisions)
         consensus = len(self.agents) // 2 + 1
 
@@ -35,3 +27,10 @@ class MasterTradingAgent:
             return 0  # Hold
 
         return 0  # Hold as a default action
+
+    def evaluate_all_agents(self, historical_signals):
+        accuracy_dict = {}
+        for agent, actual_signals in zip(self.agents, historical_signals):
+            accuracy = agent.evaluate(actual_signals)
+            accuracy_dict[agent.__class__.__name__] = accuracy
+        return accuracy_dict
