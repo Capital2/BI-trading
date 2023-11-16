@@ -1,15 +1,19 @@
 import gym
 import numpy as np
+import pandas as pd
 from stable_baselines3 import A2C
 from stable_baselines3.common.env_util import make_vec_env
 from finta import TA
+from pathlib import Path
 
-# Custom Trading Environment based on MACD
-class MACDTradingEnv(gym.Env):
-    def __init__(self, df, initial_balance=1000):
-        super(MACDTradingEnv, self).__init__()
+
+# Custom Trading Environment based on OBV
+class OBVTradingEnv(gym.Env):
+    def __init__(self, df, window_size=12, initial_balance=1000):
+        super(OBVTradingEnv, self).__init__()
 
         self.df = df
+        self.window_size = window_size
         self.initial_balance = initial_balance
         self.balance = initial_balance
         self.current_step = 0
@@ -17,8 +21,10 @@ class MACDTradingEnv(gym.Env):
         # Action space (0: Hold, 1: Buy, 2: Sell)
         self.action_space = gym.spaces.Discrete(3)
 
-        # Observation space (MACD, Signal, and Histogram values)
-        self.observation_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(3, ), dtype=np.float64)
+        # Observation space (OBV values)
+        self.observation_space = gym.spaces.Box(
+            low=-np.inf, high=np.inf, shape=(window_size,), dtype=np.float64
+        )
 
     def reset(self):
         self.balance = self.initial_balance
@@ -26,18 +32,15 @@ class MACDTradingEnv(gym.Env):
         return self._next_observation()
 
     def _next_observation(self):
-        macd = self.df.iloc[self.current_step]['MACD']
-        signal = self.df.iloc[self.current_step]['MACD_SIGNAL']
-        volume = self.df.iloc[self.current_step]['Volume']  # Replace 'VOLUME' with the name of your column
-        return np.array([macd, signal, volume])
+        return self.df["OBV"][
+            self.current_step : self.current_step + self.window_size
+        ].values
 
     def step(self, action):
         self.current_step += 1
-
-        current_price = self.df['Close'][self.current_step]
         reward = 0
-        done = self.current_step >= len(self.df) - 1
-
+        done = self.current_step >= len(self.df) - self.window_size
+        current_price = self.df["Close"].iloc[self.current_step]
         if action == 1:  # Buy
             self.balance -= current_price
             reward = 1  # Placeholder reward
@@ -47,18 +50,22 @@ class MACDTradingEnv(gym.Env):
 
         return self._next_observation(), reward, done, {}
 
-    def render(self, mode='human'):
-        print(f'Agent MACD Step: {self.current_step}, Balance: {self.balance}')
+    def render(self, mode="human"):
+        print(f"Agent OBV Step: {self.current_step}, Balance: {self.balance}")
 
 
-class MACDTradingAgent:
+class OBVTradingAgent:
     def __init__(self, df):
-        self.env = make_vec_env(lambda: MACDTradingEnv(df), n_envs=1)
-        self.model = A2C('MlpPolicy', self.env, verbose=1)
+        self.env = make_vec_env(lambda: OBVTradingEnv(df), n_envs=1)
+        self.model = A2C("MlpPolicy", self.env, verbose=1)
 
     def train_model(self, total_timesteps=10000):
         self.model.learn(total_timesteps=total_timesteps)
-        self.model.save(f"agent_models/MACDTradingAgent_model.h5")
+        self.model.save(
+            Path.joinpath(
+                Path.cwd(), "modules", "Agents", "artifacts", "OBVTradingAgent_model.h5"
+            )
+        )
 
     def predict(self, obs):
         action, _states = self.model.predict(obs, deterministic=True)
@@ -68,5 +75,9 @@ class MACDTradingAgent:
 
     def evaluate(self, historical_signals):
         predicted_signals = [self.predict(obs) for obs in self.env.reset()]
-        accuracy = sum(1 for predicted, actual in zip(predicted_signals, historical_signals) if predicted == actual) / len(historical_signals)
+        accuracy = sum(
+            1
+            for predicted, actual in zip(predicted_signals, historical_signals)
+            if predicted == actual
+        ) / len(historical_signals)
         return accuracy

@@ -3,10 +3,14 @@ import numpy as np
 import pandas as pd
 from stable_baselines3 import A2C
 from stable_baselines3.common.env_util import make_vec_env
+from finta import TA
+from pathlib import Path
 
-class SimpleMovingAverageEnv(gym.Env):
-    def __init__(self, df, window_size=12, initial_balance=1000):
-        super(SimpleMovingAverageEnv, self).__init__()
+
+# Custom Trading Environment based on RSI
+class RSITradingEnv(gym.Env):
+    def __init__(self, df, window_size=14, initial_balance=1000):
+        super(RSITradingEnv, self).__init__()
 
         self.df = df
         self.window_size = window_size
@@ -14,12 +18,13 @@ class SimpleMovingAverageEnv(gym.Env):
         self.balance = initial_balance
         self.current_step = 0
 
-        # Define action and observation space
-        # Actions: 0 - Hold, 1 - Buy, 2 - Sell
+        # Action space (0: Hold, 1: Buy, 2: Sell)
         self.action_space = gym.spaces.Discrete(3)
 
-        # Observation space: SMA values
-        self.observation_space = gym.spaces.Box(low=0, high=np.inf, shape=(window_size, ), dtype=np.float64)
+        # Observation space (RSI values)
+        self.observation_space = gym.spaces.Box(
+            low=0, high=100, shape=(window_size,), dtype=np.float64
+        )
 
     def reset(self):
         self.balance = self.initial_balance
@@ -27,47 +32,54 @@ class SimpleMovingAverageEnv(gym.Env):
         return self._next_observation()
 
     def _next_observation(self):
-        return self.df['SMA'][self.current_step:self.current_step+self.window_size].values
+        return self.df["RSI"][
+            self.current_step : self.current_step + self.window_size
+        ].values
 
     def step(self, action):
         self.current_step += 1
 
-        current_price = self.df['Close'][self.current_step]
+        current_price = self.df["Close"][self.current_step]
         reward = 0
         done = self.current_step >= len(self.df) - self.window_size
 
-        # Implement trading logic
         if action == 1:  # Buy
-            # Example: Buy one unit and subtract from balance
             self.balance -= current_price
             reward = 1  # Placeholder reward
         elif action == 2:  # Sell
-            # Example: Sell one unit and add to balance
             self.balance += current_price
             reward = 1  # Placeholder reward
 
         return self._next_observation(), reward, done, {}
 
-    def render(self, mode='human'):
-        print(f'Agent SMA Step: {self.current_step}, Balance: {self.balance}')
+    def render(self, mode="human"):
+        print(f"Agent RSI Step: {self.current_step}, Balance: {self.balance}")
 
 
-class SimpleMovingAverageAgent:
+class RSITradingAgent:
     def __init__(self, df):
-        self.env = make_vec_env(lambda: SimpleMovingAverageEnv(df), n_envs=1)
-        self.model = A2C('MlpPolicy', self.env, verbose=1)
+        self.env = make_vec_env(lambda: RSITradingEnv(df), n_envs=1)
+        self.model = A2C("MlpPolicy", self.env, verbose=1)
 
     def train_model(self, total_timesteps=10000):
         self.model.learn(total_timesteps=total_timesteps)
-        self.model.save(f"agent_models/SimpleMovingAverageAgent_model.h5")
+        self.model.save(
+            Path.joinpath(
+                Path.cwd(), "modules", "Agents", "artifacts", "RSITradingAgent_model.h5"
+            )
+        )
 
     def predict(self, obs):
         action, _states = self.model.predict(obs, deterministic=True)
         obs, rewards, dones, info = self.env.step(action)
-        self.env.render()
+        # self.env.render()
         return action[0]
 
     def evaluate(self, historical_signals):
         predicted_signals = [self.predict(obs) for obs in self.env.reset()]
-        accuracy = sum(1 for predicted, actual in zip(predicted_signals, historical_signals) if predicted == actual) / len(historical_signals)
+        accuracy = sum(
+            1
+            for predicted, actual in zip(predicted_signals, historical_signals)
+            if predicted == actual
+        ) / len(historical_signals)
         return accuracy

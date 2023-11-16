@@ -21,6 +21,9 @@ df['MACD_SIGNAL'] = TA.MACD(df)['SIGNAL']
 df.fillna(0, inplace=True)
 df.dropna(inplace=True)
 
+
+
+
 sma_agent = SimpleMovingAverageAgent(df)
 obv_agent = OBVTradingAgent(df)
 rsi_agent = RSITradingAgent(df)
