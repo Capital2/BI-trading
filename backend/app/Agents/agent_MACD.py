@@ -63,7 +63,7 @@ class MACDTradingAgent:
     def predict(self, obs):
         action, _states = self.model.predict(obs, deterministic=True)
         obs, rewards, dones, info = self.env.step(action)
-        self.env.render()
+        # self.env.render()
         return action[0]
 
     def evaluate(self, historical_signals):

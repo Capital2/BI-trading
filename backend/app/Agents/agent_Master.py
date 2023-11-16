@@ -1,5 +1,5 @@
 from collections import Counter
-
+from agent_price_predictor import PricePredictionAgent
 
 class MasterTradingAgent:
     def __init__(self, sma_agent, rsi_agent, obv_agent, macd_agent):
@@ -27,6 +27,29 @@ class MasterTradingAgent:
             return 0  # Hold
 
         return 0  # Hold as a default action
+
+    def step(self, _balance, days):
+        agent = PricePredictionAgent('data_btc.csv')
+        agent.train_model(epochs=10)
+        predictions = agent.predict(days=days) 
+        balance = _balance
+        
+        print(f'Predictions: {predictions}')
+        balances = []
+
+        for current_day in range(days):
+            action = self.make_decision()
+            print(f'Action: {action}')
+            current_price = predictions[current_day]
+            if action == 1:  
+                balance -= current_price
+            elif action == 2:
+                balance += current_price
+
+            balances.append(balance)
+        
+        return balances
+
 
     def evaluate_all_agents(self, historical_signals):
         accuracy_dict = {}
