@@ -6,14 +6,13 @@ from agent_Master import MasterTradingAgent
 import pandas as pd
 from finta import TA
 
-print("Here******")
 # Load market data for the environment
-df = pd.read_csv('data_btc.csv')
+df = pd.read_csv('data.csv')
 df['Date'] = pd.to_datetime(df['Timestamp']) 
 df.set_index('Date', inplace=True)
 df.sort_index(ascending=True, inplace=True)
 
-df['Volume'] = df['Volume_(BTC)']
+df['Volume'] = df['Volume'].apply(lambda x: float(x.replace(",", "")))
 df['SMA'] = TA.SMA(df, 12) # 12 period simple moving average
 df['RSI'] = TA.RSI(df)
 df['OBV'] = TA.OBV(df)
@@ -21,10 +20,6 @@ df['MACD'] = TA.MACD(df)['MACD']
 df['MACD_SIGNAL'] = TA.MACD(df)['SIGNAL']
 df.fillna(0, inplace=True)
 df.dropna(inplace=True)
-
-# export dataframe to csv
-df.to_csv('data_btc.csv')
-print(df.info())
 
 sma_agent = SimpleMovingAverageAgent(df)
 obv_agent = OBVTradingAgent(df)
