@@ -6,10 +6,9 @@ from agent_Master import MasterTradingAgent
 import pandas as pd
 from finta import TA
 
-print("Here******")
 # Load market data for the environment
 df = pd.read_csv('data.csv')
-df['Date'] = pd.to_datetime(df['Date']) 
+df['Date'] = pd.to_datetime(df['Timestamp']) 
 df.set_index('Date', inplace=True)
 df.sort_index(ascending=True, inplace=True)
 
@@ -20,6 +19,7 @@ df['OBV'] = TA.OBV(df)
 df['MACD'] = TA.MACD(df)['MACD']
 df['MACD_SIGNAL'] = TA.MACD(df)['SIGNAL']
 df.fillna(0, inplace=True)
+df.dropna(inplace=True)
 
 sma_agent = SimpleMovingAverageAgent(df)
 obv_agent = OBVTradingAgent(df)
@@ -30,5 +30,6 @@ macd_agent = MACDTradingAgent(df)
 master_agent = MasterTradingAgent(sma_agent, rsi_agent, obv_agent, macd_agent)
 master_agent.train_models()
 
-action = master_agent.make_decision()
-print(f"Action: {action}")
+master_agent.step(1000, 10)
+# action = master_agent.make_decision()
+# print(f"Action: {action}")
