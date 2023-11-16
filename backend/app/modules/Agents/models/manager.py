@@ -3,6 +3,7 @@ from .agent_SMA import SimpleMovingAverageAgent
 from .agent_RSI import RSITradingAgent
 from .agent_MACD import MACDTradingAgent
 from .agent_OBV import OBVTradingAgent
+from .agent_price_predictor import PricePredictionAgent
 from .agent_Master import MasterTradingAgent
 from modules.OLAP.controllers.cube_controller import cube_controller
 from modules.OLAP.models.market_activity_cube import MarketActivityCube
@@ -53,9 +54,10 @@ class Manager(metaclass=SingletonMeta):
             obv_agent = OBVTradingAgent(df, self.shares[i])
             rsi_agent = RSITradingAgent(df, self.shares[i])
             macd_agent = MACDTradingAgent(df, self.shares[i])
+            predictor = PricePredictionAgent(df, self.shares[i])
 
             self.masters[self.shares[i]] = MasterTradingAgent(
-                sma_agent, rsi_agent, obv_agent, macd_agent
+                sma_agent, rsi_agent, obv_agent, macd_agent, predictor
             )
             
             self.masters[self.shares[i]].train_models()

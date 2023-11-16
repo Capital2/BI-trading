@@ -7,19 +7,20 @@ from pathlib import Path
 
 
 class PricePredictionAgent:
-    def __init__(self, filename, time_step=100):
-        self.file = Path.joinpath(Path.cwd(), "tmp", filename)
+    def __init__(self, df: pd.DataFrame, share: str, time_step=100):        
+        self.df = df
+        self.share = share
         self.time_step = time_step
         self.model = self._build_model()
         self.scaler = MinMaxScaler(feature_range=(0, 1))
         self.data = self._load_data()
-        self.filename = filename
+        
 
     def _load_data(self):
         # Load and preprocess the data
-        df = pd.read_csv(self.file)
-        df["Date"] = pd.to_datetime(df["Date"])
-        df.set_index("Date", inplace=True)
+        df = self.df.copy()
+        # df["Date"] = pd.to_datetime(df["Date"])
+        # df.set_index("Date", inplace=True)
         data = df[["Close"]].values
         scaled_data = self.scaler.fit_transform(data)
         return scaled_data
@@ -48,7 +49,13 @@ class PricePredictionAgent:
     def train_model(self, epochs=1, batch_size=1):
         X, y = self._create_dataset(self.data)
         X = X.reshape(X.shape[0], X.shape[1], 1)
-        self.model.fit(X, y, epochs=epochs, batch_size=batch_size)
+        self.model.fit(X, y, epochs=epochs, batch_size=batch_size)        
+        self.model.save(
+            Path.joinpath(
+                Path.cwd(), "modules", "Agents", "artifacts", f"predictor_{self.share}.h5"
+            )
+        )
+        
 
     def predict(self, days):
         # Predict future prices
