@@ -19,6 +19,7 @@ class Transform:
     def validate(self):
         # Correct any any anomalies in the data
         self.data.fillna(0, inplace=True)
+        self.data.dropna(inplace=True)
 
     def correct_index(self):
         # Setting the Date column as index (gym_anytrading requirement)
@@ -35,19 +36,21 @@ class Transform:
         self.data["SMA"] = TA.SMA(self.data, self.psma)
         self.data["RSI"] = TA.RSI(self.data)
         self.data["OBV"] = TA.OBV(self.data)
+        self.data['MACD'] = TA.MACD(self.data)['MACD']
+        self.data['MACD_SIGNAL'] = TA.MACD(self.data)['SIGNAL']
 
-    def correct_column_names(self):
-        self.data.rename(
-            columns={
-                "Date": "date",
-                "Open": "open",
-                "High": "high",
-                "Low": "low",
-                "Close": "close",
-                "Volume": "volume",
-            },
-            inplace=True,
-        )
+    # def correct_column_names(self):
+    #     self.data.rename(
+    #         columns={
+    #             "Date": "date",
+    #             "Open": "open",
+    #             "High": "high",
+    #             "Low": "low",
+    #             "Close": "close",
+    #             "Volume": "volume",
+    #         },
+    #         inplace=True,
+    #     )
         
     def add_missing_columns(self):
         self.data["name"] = self.name
@@ -59,6 +62,6 @@ class Transform:
         self.sort()
         self.calculate_indicators()
         self.validate()
-        self.correct_column_names()
+        # self.correct_column_names()
         self.correct_index()   
         self.add_missing_columns()     

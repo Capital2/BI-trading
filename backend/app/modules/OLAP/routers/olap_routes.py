@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, Security, status, Response
 from ..models.market_activity_cube import MarketActivityCube
 from utilities.dependencies import get_market_activity_cube
+from ..schemas.market_activity_forecast import MarketActivityForecastRequest, MarketActivityForecastResponse
+from ..controllers.cube_controller import cube_controller
 
 router = APIRouter(
     prefix='/oplap',
@@ -17,3 +19,4 @@ async def cube_details(cube: MarketActivityCube = Depends(get_market_activity_cu
     
     return response
     
+

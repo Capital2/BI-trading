@@ -35,5 +35,5 @@ class MarketActivityCube(metaclass=SingletonMeta):
         self.cube = self.session.create_cube(self.table, "MarketActivityCube")
         self.hierarchies = self.cube.hierarchies
         self.measures = self.cube.measures
-        self.levels = self.cube.levels
+        self.levels = self.cube.levels         
 
