@@ -48,30 +48,30 @@ function Dashboard() {
 
 
   const fetchPredictionData = async (days, initialBalance) => {
-    fetch(`http://127.0.0.1:8000/prediction/market_activity_forecast/${days}/${initialBalance}/ACCO`)
+    fetch(`http://20.111.23.22:32771/prediction/market_activity_forecast/${days}/${initialBalance}/ACCO`)
       .then(response => response.json())
       .then(data => setAcco(data));
 
-    fetch(`http://127.0.0.1:8000/prediction/market_activity_forecast/${days}/${initialBalance}/FISB`)
+    fetch(`http://20.111.23.22:32771/prediction/market_activity_forecast/${days}/${initialBalance}/FISB`)
       .then(response => response.json())
       .then(data => setFisb(data));
 
-    fetch(`http://127.0.0.1:8000/prediction/market_activity_forecast/${days}/${initialBalance}/ATNFW`)
+    fetch(`http://20.111.23.22:32771/prediction/market_activity_forecast/${days}/${initialBalance}/ATNFW`)
       .then(response => response.json())
       .then(data => setAtnfw(data));
 
-    fetch(`http://127.0.0.1:8000/prediction/market_activity_forecast/${days}/${initialBalance}/GME`)
+    fetch(`http://20.111.23.22:32771/prediction/market_activity_forecast/${days}/${initialBalance}/GME`)
       .then(response => response.json())
       .then(data => setGme(data));
 
-    fetch(`http://127.0.0.1:8000/prediction/market_activity_forecast/${days}/${initialBalance}/ASCBR`)
+    fetch(`http://20.111.23.22:32771/prediction/market_activity_forecast/${days}/${initialBalance}/ASCBR`)
       .then(response => response.json())
       .then(data => setAscbr(data));
 
   }
 
   const fetchDashboardData = () => {
-    fetch('http://127.0.0.1:8000/oplap/cube_details')
+    fetch('http://20.111.23.22:32771/oplap/cube_details')
       .then(response => response.json())
       .then(data => setData(data));
   }

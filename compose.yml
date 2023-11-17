@@ -1,9 +1,12 @@
 
 services:
-  # frontend:
-  #   build: frontend/
-  #   ports:
-  #     - "3000:8080"
+  frontend:
+    build: frontend/
+    ports:
+      - "8080:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
   db:
     image: postgres:latest
     restart: always
@@ -18,7 +21,7 @@ services:
   backend:
     build: backend/
     ports:
-      - "3000"
+      - "3000:3000"
     environment:
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
