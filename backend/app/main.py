@@ -5,6 +5,7 @@ from modules.Agents.models.manager import Manager
 from modules.OLAP.routers import olap_routes
 from modules.Agents.routers import market_prediction_routes
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 
 class HealthCheck(BaseModel):
@@ -31,7 +32,21 @@ async def startup_event():
 def get_health() -> HealthCheck:
     return HealthCheck(status="OK")
 
+origins = [
+    "http://localhost:3000",
+    "localhost:3000",
+    "*"
+]
+
 
 # registering the modules routers
 app.include_router(olap_routes.router)
 app.include_router(market_prediction_routes.router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
