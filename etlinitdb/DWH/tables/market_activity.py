@@ -13,7 +13,7 @@ class MarketActivity(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement="auto")
     name: Mapped[str] = mapped_column(String(50))
     share: Mapped[str] = mapped_column(String(50))
-    Date: Mapped[date] = mapped_column(Date, index=True)
+    Date: Mapped[datetime.date] = mapped_column(Date, index=True)
     Open: Mapped[float] = mapped_column(Float)
     High: Mapped[float] = mapped_column(Float)
     Low: Mapped[float] = mapped_column(Float)

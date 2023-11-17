@@ -1,10 +1,12 @@
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9-slim
+FROM python:3.9-bookworm
 
 WORKDIR /app
 
 COPY requirements.txt ./
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install -r requirements.txt
+
+RUN pip install --upgrade pip 
+
+RUN pip install --upgrade pip wheel==0.38.4 && pip install --no-cache-dir -r requirements.txt
 
 COPY ./app .
 

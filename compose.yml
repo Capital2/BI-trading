@@ -26,7 +26,7 @@ services:
       - DB_PORT=5432
       - DB_NAME=bi
     volumes:
-      - agentmodels:/app/Agents/agent_models
+      - agentmodels:/app/modules/Agents/artifacts
     depends_on:
       etl:
         condition: service_healthy
